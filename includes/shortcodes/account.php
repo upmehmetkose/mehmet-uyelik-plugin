@@ -37,9 +37,34 @@ function mehmet_account_shortcode() {
 
     <div class="mehmet-tab-content">
       <?php switch ($active_tab):
-        case 'subscriptions': ?>
-          <p>Burada kullanıcının abonelik bilgileri gösterilecek.</p>
-          <?php break;
+        case 'subscriptions':
+  $plans = get_user_meta($user->ID, 'mehmet_user_plans_timed', true);
+  if (!is_array($plans) || empty($plans)) {
+    echo '<p>Aktif aboneliğiniz bulunmamaktadır.</p>';
+    break;
+  }
+
+  echo '<table style="width:100%; border-collapse:collapse;">';
+  echo '<thead><tr><th style="text-align:left;">Plan</th><th>Durum</th><th>Bitiş Tarihi</th><th>Kalan Gün</th></tr></thead><tbody>';
+
+  foreach ($plans as $plan) {
+    $plan_name = esc_html($plan['name']);
+    $expires = intval($plan['expires']);
+    $now = time();
+    $days_left = ceil(($expires - $now) / 86400);
+    $status = $days_left > 0 ? '✅ Aktif' : '❌ Süresi Doldu';
+    $remaining = $days_left > 0 ? $days_left . ' gün' : '-';
+
+    echo "<tr>
+      <td>$plan_name</td>
+      <td>$status</td>
+      <td>" . date('d.m.Y', $expires) . "</td>
+      <td>$remaining</td>
+    </tr>";
+  }
+
+  echo '</tbody></table>';
+  break;
         case 'profile': ?>
           <p>Ad Soyad: <?= esc_html($user->display_name) ?></p>
           <p>E-Posta: <?= esc_html($user->user_email) ?></p>
