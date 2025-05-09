@@ -90,6 +90,36 @@ function mehmet_account_shortcode() {
             echo '<p style="color:red;">Üyeliğiniz iptal edildi.</p>';
           }
           break;
+   
+    case 'comments':
+  $history = get_user_meta($user->ID, 'mehmet_comments_history', true);
+  if (!is_array($history) || count($history) === 0) {
+    echo '<p>Henüz yorumunuz bulunmamaktadır.</p>';
+    break;
+  }
+  echo '<style>
+    .mehmet-accordion { margin-bottom: 10px; }
+    .mehmet-accordion button {
+      width: 100%; text-align: left; padding: 10px; border: none;
+      background: #f1f1f1; cursor: pointer; font-weight: bold;
+    }
+    .mehmet-accordion-content {
+      display: none; padding: 10px; background: #fafafa;
+      border: 1px solid #ddd;
+    }
+  </style>';
+  echo '<div>';
+  foreach ($history as $i => $entry) {
+    echo '<div class="mehmet-accordion">';
+    echo '<button onclick="document.getElementById(\'comment-'.$i.'\').classList.toggle(\'open\')">' . esc_html($entry['date']) . ' – Yorum #' . ($i+1) . '</button>';
+    echo '<div id="comment-'.$i.'" class="mehmet-accordion-content">' . esc_html($entry['text']) . '</div>';
+    echo '</div>';
+  }
+  echo '</div>';
+  echo '<script>
+    document.querySelectorAll(".mehmet-accordion-content").forEach(c => c.classList.remove("open"));
+  </script>';
+  break;
         default:
           echo '<p>Bu sekme henüz tanımlanmadı.</p>';
       endswitch; ?>
