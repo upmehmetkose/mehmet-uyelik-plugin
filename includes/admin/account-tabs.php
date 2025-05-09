@@ -32,6 +32,7 @@ function mehmet_account_tabs_page() {
     'profile' => 'Hesap Bilgileri',
     'password' => 'Şifre Değiştir',
     'cancel' => 'Üyelik İptali',
+    'comments' => 'Yorumlarım',
   ]);
   ?>
 
