@@ -1,5 +1,5 @@
 <?php
-// Admin panelden "Hesabım Sekmeleri"ni yönet
+// Gelişmiş sekme ayarı: içerik + etiket + key
 add_action('admin_menu', function () {
   add_submenu_page(
     'options-general.php',
@@ -15,11 +15,16 @@ function mehmet_account_tabs_page() {
   if (isset($_POST['mehmet_tabs_save'])) {
     $labels = $_POST['tab_labels'] ?? [];
     $keys = $_POST['tab_keys'] ?? [];
+    $contents = $_POST['tab_contents'] ?? [];
+
     $new_tabs = [];
 
     foreach ($keys as $i => $key) {
       if (!empty($key) && !empty($labels[$i])) {
-        $new_tabs[sanitize_key($key)] = sanitize_text_field($labels[$i]);
+        $new_tabs[sanitize_key($key)] = [
+          'label' => sanitize_text_field($labels[$i]),
+          'content' => wp_kses_post($contents[$i])
+        ];
       }
     }
 
@@ -28,11 +33,9 @@ function mehmet_account_tabs_page() {
   }
 
   $tabs = get_option('mehmet_account_tabs', [
-    'subscriptions' => 'Aboneliklerim',
-    'profile' => 'Hesap Bilgileri',
-    'password' => 'Şifre Değiştir',
-    'cancel' => 'Üyelik İptali',
-    'comments' => 'Yorumlarım',
+    'subscriptions' => ['label' => 'Aboneliklerim', 'content' => ''],
+    'profile' => ['label' => 'Hesap Bilgileri', 'content' => ''],
+    'comments' => ['label' => 'Yorumlarım', 'content' => ''],
   ]);
   ?>
 
@@ -40,22 +43,23 @@ function mehmet_account_tabs_page() {
     <h1>Hesap Sayfası Sekmeleri</h1>
     <form method="post">
       <table class="form-table" id="tab-table">
-        <thead><tr><th>Tab Key</th><th>Etiket</th></tr></thead>
+        <thead><tr><th>Tab Key</th><th>Etiket</th><th>İçerik / Shortcode</th></tr></thead>
         <tbody>
-          <?php foreach ($tabs as $key => $label): ?>
+          <?php foreach ($tabs as $key => $data): ?>
             <tr>
               <td><input type="text" name="tab_keys[]" value="<?= esc_attr($key) ?>"></td>
-              <td><input type="text" name="tab_labels[]" value="<?= esc_attr($label) ?>"></td>
+              <td><input type="text" name="tab_labels[]" value="<?= esc_attr($data['label']) ?>"></td>
+              <td><textarea name="tab_contents[]" rows="3" style="width:100%;"><?= esc_textarea($data['content']) ?></textarea></td>
             </tr>
           <?php endforeach; ?>
           <tr>
               <td><input type="text" name="tab_keys[]" placeholder="yeni_key"></td>
               <td><input type="text" name="tab_labels[]" placeholder="Yeni Etiket"></td>
+              <td><textarea name="tab_contents[]" placeholder="[shortcode] veya HTML" rows="3" style="width:100%;"></textarea></td>
           </tr>
         </tbody>
       </table>
       <p><button type="submit" name="mehmet_tabs_save" class="button-primary">Kaydet</button></p>
     </form>
   </div>
-<?php
-}
+<?php } ?>
