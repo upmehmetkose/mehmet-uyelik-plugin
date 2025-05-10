@@ -1,5 +1,5 @@
 <?php
-// [mehmet_account] – Gelişmiş kullanıcı paneli
+// [mehmet_account] – Gelişmiş kullanıcı paneli + özel sekme işlevleri
 function mehmet_account_shortcode() {
   if (!is_user_logged_in()) return '<div class="mehmet-box">Lütfen giriş yapınız.</div>';
 
@@ -41,8 +41,30 @@ function mehmet_account_shortcode() {
 
     <div class="mehmet-tab-content">
       <?php
-        $content = $tabs[$active_tab]['content'] ?? '';
-        echo do_shortcode(wp_kses_post($content));
+        if ($active_tab === 'referans') {
+          // ÖZEL REFERANS SEKME İÇERİĞİ
+          $ref_code = get_user_meta($user->ID, 'mehmet_ref_code', true);
+          echo "<p>Senin referans kodun: <strong>$ref_code</strong></p>";
+          echo "<p>Paylaş: <code>" . home_url('/register') . "?ref=$ref_code</code></p>";
+
+          $ref_users = get_users(['meta_key' => 'mehmet_referrer', 'meta_value' => $user->ID]);
+          if ($ref_users) {
+            echo "<h4>Davet Ettiklerin:</h4><ul>";
+            foreach ($ref_users as $u) {
+              $premium = get_user_meta($u->ID, 'mehmet_user_plans_timed', true);
+              $status = (is_array($premium) && !empty($premium)) ? '✅ Premium' : '⏳ Bekliyor';
+              echo "<li>{$u->user_login} – $status</li>";
+            }
+            echo "</ul>";
+          } else {
+            echo "<p>Henüz kimseyi davet etmediniz.</p>";
+          }
+
+        } else {
+          // Diğer sekmeler: admin panelden gelen içerik
+          $content = $tabs[$active_tab]['content'] ?? '';
+          echo do_shortcode(wp_kses_post($content));
+        }
       ?>
     </div>
   </div>
