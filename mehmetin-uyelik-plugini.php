@@ -20,3 +20,4 @@ require_once plugin_dir_path(__FILE__) . 'includes/admin/account-tabs.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin/plans.php';
 
 // Daha sonra: planlar, ödeme sistemleri vs. buraya eklenecek
+require_once plugin_dir_path(__FILE__) . 'includes/helpers/functions.php';
